@@ -1,0 +1,6 @@
+*.map
+.DS_Store
+node_modules/
+dist/
+package-lock.json
+bin/
