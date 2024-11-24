@@ -3,7 +3,6 @@
 #include <string.h>
 #include <lzo/lzo1x.h>
 
-
 #define IN_LEN      (128*1024L)
 #define OUT_LEN     (IN_LEN + IN_LEN / 16 + 64 + 3)
 #define HEAP_ALLOC(var,size) \
@@ -38,23 +37,30 @@ int main() {
         }
 
         size_t sentenceLength = strlen(sentence);
-        unsigned long compressChecksum = checksum((unsigned char *)sentence, sentenceLength);
+        unsigned long bufferChecksum = checksum((unsigned char *)sentence, sentenceLength);
 
         if (lzo1x_1_compress((unsigned char *)sentence, sentenceLength, compressed, &compressedLength, wrkmem) != LZO_E_OK) {
             printf("Compression failed\n");
             return 1;
         }
 
+        unsigned long compressedChecksum = checksum(compressed, compressedLength);
+
         if (lzo1x_decompress(compressed, compressedLength, decompressed, &decompressedLength, NULL) != LZO_E_OK) {
             printf("Decompression failed\n");
             return 1;
         }
 
-        unsigned long decompressChecksum = checksum(decompressed, decompressedLength);
+        unsigned long decompressedChecksum = checksum(decompressed, decompressedLength);
         double compressionRate = ((1.0 - ((double)compressedLength / sentenceLength)) * 100.0);
 
-        printf("Sentence %d: CompressChecksum = %lu, DecompressChecksum = %lu, Compressed Length = %lu, Decompressed Length = %lu, Compression Rate = %.2f%%\n",
-               i, compressChecksum, decompressChecksum, compressedLength, decompressedLength, compressionRate);
+        printf("Sentence %d: bufferChecksum = %lu, compressedChecksum = %lu, decompressedChecksum = %lu, compressedLength = %lu, decompressedLength = %lu, compressionRate = %.2f%%\n",
+               i, bufferChecksum, compressedChecksum, decompressedChecksum, compressedLength, decompressedLength, compressionRate);
+
+        if (bufferChecksum != decompressedChecksum) {
+            printf("Checksum mismatch for sentence %d\n", i);
+            return 1;
+        }
     }
 
     return 0;

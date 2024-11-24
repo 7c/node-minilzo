@@ -8,36 +8,42 @@ npm install https://github.com/7c/node-minilzo --save
 
 ## Usage
 ```
-import { LZO1X } from '@7c/minilzo';
+import { LZO1X, checksumArray } from '@7c/minilzo';
+import assert from 'assert';
+
 const lzo = new LZO1X();
 
-const compressed = lzo.compress(Buffer.from('Hello, world!'));
+const original = new Uint8Array(Buffer.from('Hello, world!'));
+console.log(`original: ${original} - checksum: ${checksumArray(original)}`);
+const compressed = lzo.compress(original);
+console.log(`compressed: ${compressed} - checksum: ${checksumArray(compressed)}`);
 const decompressed = lzo.decompress(compressed);
-
-console.log(decompressed.toString());
+console.log(`decompressed: ${decompressed} - checksum: ${checksumArray(decompressed)}`);
+assert(Buffer.from(decompressed).toString() === 'Hello, world!');
+assert(checksumArray(original) === checksumArray(decompressed));
 ```
 
 ## Demos
-See `demo.ts`, `demo2.ts` for a complete example, also `tests.ts` for testing.
+See `demo.ts`, `demo2.ts` for a complete example, also `test/checksum.ts` for testing.
 
 
 ## Tests
 Created a tests.c which shall use same constants as the tests.ts file, this way we can compare the results of the C version with the TS version for compatibility testing. It is essential that both versions are compatible.
 ### Typescript
 ```bash
-$ node tests2.js
+$ node test/checksum.js
 
 ## output
-Sentence 1: CompressChecksum = 2476, DecompressChecksum = 2476, Compressed Length = 28, Decompressed Length = 24, Compression Rate = -16.67%
-Sentence 2: CompressChecksum = 5528, DecompressChecksum = 5528, Compressed Length = 45, Decompressed Length = 48, Compression Rate = 6.25%
-Sentence 3: CompressChecksum = 9156, DecompressChecksum = 9156, Compressed Length = 54, Decompressed Length = 72, Compression Rate = 25.00%
-Sentence 4: CompressChecksum = 13360, DecompressChecksum = 13360, Compressed Length = 55, Decompressed Length = 96, Compression Rate = 42.71%
-Sentence 5: CompressChecksum = 18140, DecompressChecksum = 18140, Compressed Length = 55, Decompressed Length = 120, Compression Rate = 54.17%
-Sentence 6: CompressChecksum = 23496, DecompressChecksum = 23496, Compressed Length = 55, Decompressed Length = 144, Compression Rate = 61.81%
-Sentence 7: CompressChecksum = 29428, DecompressChecksum = 29428, Compressed Length = 55, Decompressed Length = 168, Compression Rate = 67.26%
-Sentence 8: CompressChecksum = 35936, DecompressChecksum = 35936, Compressed Length = 55, Decompressed Length = 192, Compression Rate = 71.35%
-Sentence 9: CompressChecksum = 43020, DecompressChecksum = 43020, Compressed Length = 55, Decompressed Length = 216, Compression Rate = 74.54%
-Sentence 10: CompressChecksum = 50680, DecompressChecksum = 50680, Compressed Length = 55, Decompressed Length = 240, Compression Rate = 77.08%
+Sentence 1: bufferChecksum = 2476, compressedChecksum = 2636, decompressedChecksum = 2476, compressedLength = 28, decompressedLength = 24, compressionRate = -16.67%
+Sentence 2: bufferChecksum = 5528, compressedChecksum = 4518, decompressedChecksum = 5528, compressedLength = 45, decompressedLength = 48, compressionRate = 6.25%
+Sentence 3: bufferChecksum = 9156, compressedChecksum = 5598, decompressedChecksum = 9156, compressedLength = 54, decompressedLength = 72, compressionRate = 25.00%
+Sentence 4: bufferChecksum = 13360, compressedChecksum = 5645, decompressedChecksum = 13360, compressedLength = 55, decompressedLength = 96, compressionRate = 42.71%
+Sentence 5: bufferChecksum = 18140, compressedChecksum = 5669, decompressedChecksum = 18140, compressedLength = 55, decompressedLength = 120, compressionRate = 54.17%
+Sentence 6: bufferChecksum = 23496, compressedChecksum = 5693, decompressedChecksum = 23496, compressedLength = 55, decompressedLength = 144, compressionRate = 61.81%
+Sentence 7: bufferChecksum = 29428, compressedChecksum = 5717, decompressedChecksum = 29428, compressedLength = 55, decompressedLength = 168, compressionRate = 67.26%
+Sentence 8: bufferChecksum = 35936, compressedChecksum = 5741, decompressedChecksum = 35936, compressedLength = 55, decompressedLength = 192, compressionRate = 71.35%
+Sentence 9: bufferChecksum = 43020, compressedChecksum = 5765, decompressedChecksum = 43020, compressedLength = 55, decompressedLength = 216, compressionRate = 74.54%
+Sentence 10: bufferChecksum = 50680, compressedChecksum = 5789, decompressedChecksum = 50680, compressedLength = 55, decompressedLength = 240, compressionRate = 77.08%
 ```
 
 ### C
@@ -45,21 +51,21 @@ Sentence 10: CompressChecksum = 50680, DecompressChecksum = 50680, Compressed Le
 ## Mac
 $ brew install lzo
 ## brew info lzo and find out where it is installed
-$ gcc -o bin/ctests tests.c -I/opt/homebrew/Cellar/lzo/2.10/include -L/opt/homebrew/Cellar/lzo/2.10/lib -llzo2 && chmod +x bin/ctests && bin/ctests
+$ gcc -o bin/cchecksum test/checksum.c -I/opt/homebrew/Cellar/lzo/2.10/include -L/opt/homebrew/Cellar/lzo/2.10/lib -llzo2 && chmod +x bin/cchecksum && bin/cchecksum
 
 
 ## output
 Testing C LZO1X compression
-Sentence 1: CompressChecksum = 2476, DecompressChecksum = 2476, Compressed Length = 28, Decompressed Length = 24, Compression Rate = -16.67%
-Sentence 2: CompressChecksum = 5528, DecompressChecksum = 5528, Compressed Length = 45, Decompressed Length = 48, Compression Rate = 6.25%
-Sentence 3: CompressChecksum = 9156, DecompressChecksum = 9156, Compressed Length = 54, Decompressed Length = 72, Compression Rate = 25.00%
-Sentence 4: CompressChecksum = 13360, DecompressChecksum = 13360, Compressed Length = 55, Decompressed Length = 96, Compression Rate = 42.71%
-Sentence 5: CompressChecksum = 18140, DecompressChecksum = 18140, Compressed Length = 55, Decompressed Length = 120, Compression Rate = 54.17%
-Sentence 6: CompressChecksum = 23496, DecompressChecksum = 23496, Compressed Length = 55, Decompressed Length = 144, Compression Rate = 61.81%
-Sentence 7: CompressChecksum = 29428, DecompressChecksum = 29428, Compressed Length = 55, Decompressed Length = 168, Compression Rate = 67.26%
-Sentence 8: CompressChecksum = 35936, DecompressChecksum = 35936, Compressed Length = 55, Decompressed Length = 192, Compression Rate = 71.35%
-Sentence 9: CompressChecksum = 43020, DecompressChecksum = 43020, Compressed Length = 55, Decompressed Length = 216, Compression Rate = 74.54%
-Sentence 10: CompressChecksum = 50680, DecompressChecksum = 50680, Compressed Length = 55, Decompressed Length = 240, Compression Rate = 77.08%
+Sentence 1: bufferChecksum = 2476, compressedChecksum = 2636, decompressedChecksum = 2476, compressedLength = 28, decompressedLength = 24, compressionRate = -16.67%
+Sentence 2: bufferChecksum = 5528, compressedChecksum = 4518, decompressedChecksum = 5528, compressedLength = 45, decompressedLength = 48, compressionRate = 6.25%
+Sentence 3: bufferChecksum = 9156, compressedChecksum = 5598, decompressedChecksum = 9156, compressedLength = 54, decompressedLength = 72, compressionRate = 25.00%
+Sentence 4: bufferChecksum = 13360, compressedChecksum = 5645, decompressedChecksum = 13360, compressedLength = 55, decompressedLength = 96, compressionRate = 42.71%
+Sentence 5: bufferChecksum = 18140, compressedChecksum = 5669, decompressedChecksum = 18140, compressedLength = 55, decompressedLength = 120, compressionRate = 54.17%
+Sentence 6: bufferChecksum = 23496, compressedChecksum = 5693, decompressedChecksum = 23496, compressedLength = 55, decompressedLength = 144, compressionRate = 61.81%
+Sentence 7: bufferChecksum = 29428, compressedChecksum = 5717, decompressedChecksum = 29428, compressedLength = 55, decompressedLength = 168, compressionRate = 67.26%
+Sentence 8: bufferChecksum = 35936, compressedChecksum = 5741, decompressedChecksum = 35936, compressedLength = 55, decompressedLength = 192, compressionRate = 71.35%
+Sentence 9: bufferChecksum = 43020, compressedChecksum = 5765, decompressedChecksum = 43020, compressedLength = 55, decompressedLength = 216, compressionRate = 74.54%
+Sentence 10: bufferChecksum = 50680, compressedChecksum = 5789, decompressedChecksum = 50680, compressedLength = 55, decompressedLength = 240, compressionRate = 77.08%
 ```
 
 ### Fork
