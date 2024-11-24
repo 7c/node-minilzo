@@ -20,7 +20,7 @@
       "declaration": true,
       "declarationMap": true,
       "preserveConstEnums": true,
-      "resolveJsonModule": true,
+      "resolveJsonModule": false,
       "skipLibCheck": true,      
       "baseUrl": ".",
       "paths": {

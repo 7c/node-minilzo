@@ -15,6 +15,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./src/ts-lzo1x"), exports);
-__exportStar(require("./inc/compressionUtils"), exports);
 __exportStar(require("./inc/checksumArray"), exports);
 //# sourceMappingURL=index.js.map

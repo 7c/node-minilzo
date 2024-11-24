@@ -177,8 +177,11 @@ class LZO1X {
             this.match_next();
         }
     }
-    decompress(state) {
-        this.state = state;
+    decompress(inputBuffer) {
+        this.state = {
+            inputBuffer: inputBuffer,
+            outputBuffer: new Uint8Array(inputBuffer.length * 2),
+        };
         this.buf = this.state.inputBuffer;
         this.cbl = this.out.length;
         this.ip_end = this.buf.length;
@@ -193,7 +196,11 @@ class LZO1X {
                 this.match_next();
                 this.ret = this.match();
                 if (this.ret !== this.OK) {
-                    return this.ret === this.EOF_FOUND ? this.OK : this.ret;
+                    //   const outcome = this.ret === this.EOF_FOUND ? this.OK : this.ret;
+                    this.state.outputBuffer = this.returnNewBuffers
+                        ? new Uint8Array(this.out.subarray(0, this.op))
+                        : this.out.subarray(0, this.op);
+                    return this.state.outputBuffer;
                 }
             }
             else {
@@ -207,7 +214,10 @@ class LZO1X {
                 if (this.t >= 16) {
                     this.ret = this.match();
                     if (this.ret !== this.OK) {
-                        return this.ret === this.EOF_FOUND ? this.OK : this.ret;
+                        this.state.outputBuffer = this.returnNewBuffers
+                            ? new Uint8Array(this.out.subarray(0, this.op))
+                            : this.out.subarray(0, this.op);
+                        return this.state.outputBuffer;
                     }
                     continue;
                 }
@@ -245,7 +255,10 @@ class LZO1X {
             }
             this.ret = this.match();
             if (this.ret !== this.OK) {
-                return this.ret === this.EOF_FOUND ? this.OK : this.ret;
+                this.state.outputBuffer = this.returnNewBuffers
+                    ? new Uint8Array(this.out.subarray(0, this.op))
+                    : this.out.subarray(0, this.op);
+                return this.state.outputBuffer;
             }
         }
         // Unreachable code
@@ -402,8 +415,11 @@ class LZO1X {
         }
         this.t = this.ll - (this.jj - this.ip_start - this.ti);
     }
-    compress(state) {
-        this.state = state;
+    compress(inputBuffer) {
+        this.state = {
+            inputBuffer: inputBuffer,
+            outputBuffer: new Uint8Array(inputBuffer.length * 2),
+        };
         this.ip = 0;
         this.buf = this.state.inputBuffer;
         this.maxSize =
@@ -456,7 +472,7 @@ class LZO1X {
         this.state.outputBuffer = this.returnNewBuffers
             ? new Uint8Array(this.out.subarray(0, this.op))
             : this.out.subarray(0, this.op);
-        return this.OK;
+        return this.state.outputBuffer;
     }
 }
 exports.LZO1X = LZO1X;

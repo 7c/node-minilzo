@@ -1,5 +1,7 @@
+import { LZO1X } from './src/ts-lzo1x';
 import { checksumArray } from './inc/checksumArray';
-import { compress, decompress } from './inc/compressionUtils';
+const lzo = new LZO1X();
+
 
 const baseSentence = "This is a test sentence.";
 const sentences: string[] = Array.from({ length: 10 }, (_, index) => baseSentence.repeat(index + 1));
@@ -8,10 +10,10 @@ sentences.forEach((sentence, index) => {
     const buffer = new Uint8Array(Buffer.from(sentence));
     const compressChecksum = checksumArray(buffer);
 
-    const compressedBuffer = compress(buffer);
+    const compressedBuffer = lzo.compress(buffer);
     const compressedLength = compressedBuffer.length;
 
-    const decompressedBuffer = decompress(compressedBuffer);
+    const decompressedBuffer = lzo.decompress(compressedBuffer);
     const decompressedLength = decompressedBuffer.length;
     const decompressedChecksum = checksumArray(decompressedBuffer);
 

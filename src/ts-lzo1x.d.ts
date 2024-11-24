@@ -69,9 +69,9 @@ declare class LZO1X {
     private copy_match;
     private copy_from_buf;
     private match;
-    decompress(state: LZOState): number;
+    decompress(inputBuffer: Uint8Array): Uint8Array;
     private _compressCore;
-    compress(state: LZOState): number;
+    compress(inputBuffer: Uint8Array): Uint8Array;
     private ip_start;
     private ti;
     private ll;

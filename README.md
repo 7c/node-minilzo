@@ -9,9 +9,10 @@ npm install https://github.com/7c/node-minilzo --save
 ## Usage
 ```
 import { LZO1X } from '@7c/minilzo';
+const lzo = new LZO1X();
 
-const compressed = LZO1X.compress(Buffer.from('Hello, world!'));
-const decompressed = LZO1X.decompress(compressed);
+const compressed = lzo.compress(Buffer.from('Hello, world!'));
+const decompressed = lzo.decompress(compressed);
 
 console.log(decompressed.toString());
 ```

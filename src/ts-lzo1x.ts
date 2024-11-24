@@ -230,8 +230,11 @@ class LZO1X {
     }
   }
 
-  decompress(state: LZOState): number {
-    this.state = state;
+  decompress(inputBuffer: Uint8Array): Uint8Array {
+    this.state = {
+        inputBuffer: inputBuffer,
+        outputBuffer: new Uint8Array(inputBuffer.length*2),
+    };
 
     this.buf = this.state.inputBuffer;
     this.cbl = this.out.length;
@@ -250,7 +253,11 @@ class LZO1X {
         this.match_next();
         this.ret = this.match();
         if (this.ret !== this.OK) {
-          return this.ret === this.EOF_FOUND ? this.OK : this.ret;
+        //   const outcome = this.ret === this.EOF_FOUND ? this.OK : this.ret;
+          this.state.outputBuffer = this.returnNewBuffers
+            ? new Uint8Array(this.out.subarray(0, this.op))
+            : this.out.subarray(0, this.op);
+          return this.state.outputBuffer;
         }
       } else {
         this.copy_from_buf();
@@ -265,7 +272,10 @@ class LZO1X {
         if (this.t >= 16) {
           this.ret = this.match();
           if (this.ret !== this.OK) {
-            return this.ret === this.EOF_FOUND ? this.OK : this.ret;
+            this.state.outputBuffer = this.returnNewBuffers
+              ? new Uint8Array(this.out.subarray(0, this.op))
+              : this.out.subarray(0, this.op);
+            return this.state.outputBuffer;
           }
           continue;
         } else if (this.t === 0) {
@@ -305,7 +315,10 @@ class LZO1X {
 
       this.ret = this.match();
       if (this.ret !== this.OK) {
-        return this.ret === this.EOF_FOUND ? this.OK : this.ret;
+        this.state.outputBuffer = this.returnNewBuffers
+          ? new Uint8Array(this.out.subarray(0, this.op))
+          : this.out.subarray(0, this.op);
+        return this.state.outputBuffer;
       }
     }
 
@@ -491,9 +504,11 @@ class LZO1X {
     }
     this.t = this.ll - (this.jj - this.ip_start - this.ti);
   }
-
-  compress(state: LZOState): number {
-    this.state = state;
+  compress(inputBuffer: Uint8Array): Uint8Array  {
+    this.state = {
+        inputBuffer: inputBuffer,
+        outputBuffer: new Uint8Array(inputBuffer.length*2),
+    };
     this.ip = 0;
     this.buf = this.state.inputBuffer;
     this.maxSize =
@@ -551,7 +566,7 @@ class LZO1X {
     this.state.outputBuffer = this.returnNewBuffers
       ? new Uint8Array(this.out.subarray(0, this.op))
       : this.out.subarray(0, this.op);
-    return this.OK;
+    return this.state.outputBuffer;
   }
 
   private ip_start: number = 0;
