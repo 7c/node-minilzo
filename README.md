@@ -18,7 +18,7 @@ console.log(decompressed.toString());
 ```
 
 ## Demos
-See `demo.ts` for a complete example, also `tests.ts` for testing.
+See `demo.ts`, `demo2.ts` for a complete example, also `tests.ts` for testing.
 
 
 ## Tests

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ts_lzo1x_3_1 = require("./src/ts-lzo1x-3");
+const ts_lzo1x_1 = require("./src/ts-lzo1x");
 const checksumArray_1 = require("./inc/checksumArray");
-const lzo = new ts_lzo1x_3_1.LZO1X();
+const lzo = new ts_lzo1x_1.LZO1X();
 // Example 1: Compress and decompress a simple string
 function demoStringCompression() {
     console.log("\n=== Demo 1: String Compression ===");

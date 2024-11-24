@@ -1,4 +1,4 @@
-import { LZO1X } from './src/ts-lzo1x-3';
+import { LZO1X } from './src/ts-lzo1x';
 import { checksumArray } from './inc/checksumArray';
 
 const lzo = new LZO1X();
